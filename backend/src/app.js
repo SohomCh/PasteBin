@@ -2,21 +2,32 @@ require("dotenv").config()
 
 const express = require("express")
 const rateLimit = require("express-rate-limit")
+const cors = require("cors")
 
 const app = express()
 
 // ROUTES
+
 const pasteRoutes = require("./routes/paste.routes")
 const authRoutes = require("./routes/auth.routes")
 
 
 // ---------------- MIDDLEWARE ----------------
 
-// JSON parser
+// CORS
+
+app.use(
+    cors({
+        origin: "http://localhost:5173"
+    })
+)
+
+// JSON Parser
+
 app.use(express.json())
 
+// Rate Limiter
 
-// Rate limiter
 const limiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
     max: 20,
@@ -26,7 +37,8 @@ const limiter = rateLimit({
     }
 })
 
-// apply globally
+// Apply Globally
+
 app.use(limiter)
 
 
@@ -39,10 +51,12 @@ app.get("/", (req, res) => {
 
 // ---------------- ROUTES ----------------
 
-// Paste routes
+// Paste Routes
+
 app.use("/", pasteRoutes)
 
-// Auth routes
+// Auth Routes
+
 app.use("/auth", authRoutes)
 
 
@@ -52,9 +66,17 @@ const { connect } = require("./models/connect")
 
 connect()
     .then(() => {
+
+        console.log("DB Connected")
+
         app.listen(8000, () => {
+            console.log("Server running on port 8000")
         })
+
     })
     .catch(err => {
-        console.error("DB connection failed:", err.message)
+        console.error(
+            "DB connection failed:",
+            err.message
+        )
     })
