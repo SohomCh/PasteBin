@@ -1,9 +1,96 @@
-function Login(){
-    return(
-        <>
-        <h1>Login Page</h1>
-        
-        </>
-    )
+import { useState } from "react";
+import api from "../services/api";
+
+function Login() {
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const handleSubmit = async (e) => {
+
+        e.preventDefault();
+
+        try {
+
+            const response = await api.post(
+                "/auth/login",
+                {
+                    email,
+                    password
+                }
+            );
+
+            const token=response.data.data.token;
+            localStorage.setItem(
+                "token",
+                token
+            );
+            console.log("Token storedd")
+            console.log(token);
+
+        }
+        catch (error) {
+
+            console.log(
+                error.response?.data
+            );
+
+        }
+    };
+
+    return (
+        <div>
+
+            <h1>Login</h1>
+
+            <form onSubmit={handleSubmit}>
+
+                <div>
+
+                    <label>Email</label>
+
+                    <br />
+
+                    <input
+                        type="email"
+                        placeholder="Enter Email"
+                        value={email}
+                        onChange={(e) =>
+                            setEmail(e.target.value)
+                        }
+                    />
+
+                </div>
+
+                <br />
+
+                <div>
+
+                    <label>Password</label>
+
+                    <br />
+
+                    <input
+                        type="password"
+                        placeholder="Enter Password"
+                        value={password}
+                        onChange={(e) =>
+                            setPassword(e.target.value)
+                        }
+                    />
+
+                </div>
+
+                <br />
+
+                <button type="submit">
+                    Login
+                </button>
+
+            </form>
+
+        </div>
+    );
 }
-export default Login
+
+export default Login;
