@@ -1,21 +1,49 @@
-import{Link} from"react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-function Navbar(){
-    return(
-        <nav>
-            <Link to="/">Login</Link>
-            {"|"}
-            <Link to='/register'>Register</Link>
-            {"|"}
+function Navbar() {
+    const token = localStorage.getItem('token')
+    const navigate = useNavigate();
 
-            <Link to="/create">Create</Link>
+    const handleLogout = () => {
 
-            {"|"}
-            <Link to="/my-pastes">My Pastes</Link>
-        </nav>
+       const token= localStorage.removeItem("token");
 
-    )
+        navigate("/login");
+    };
+
+    return (
+        
+    <nav>
+
+        {!token && (
+            <>
+                <Link to="/login">Login</Link>
+
+                {" | "}
+
+                <Link to="/register">Register</Link>
+            </>
+        )}
+
+        {token && (
+            <>
+                <Link to="/create">Create</Link>
+
+                {" | "}
+
+                <Link to="/my-pastes">My Pastes</Link>
+
+                {" | "}
+
+                <button onClick={handleLogout}>
+                    Logout
+                </button>
+            </>
+        )}
+
+    </nav>
+);
     
 }
 
-export default Navbar
+export default Navbar;

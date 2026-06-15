@@ -1,10 +1,12 @@
 import { useState } from "react";
 import api from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const navigate=useNavigate();
 
     const handleSubmit = async (e) => {
 
@@ -25,6 +27,9 @@ function Login() {
                 "token",
                 token
             );
+
+            // this function directly takes to create page after login
+            navigate("/create")
             console.log("Token storedd")
             console.log(token);
 

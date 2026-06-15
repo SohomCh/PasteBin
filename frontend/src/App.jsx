@@ -6,8 +6,10 @@ import CreatePaste from "./pages/CreatePaste";
 import MyPastes from "./pages/MyPastes";
 import ViewPaste from "./pages/ViewPaste";
 import Navbar from"./components/Navbar";
+import { useNavigate } from "react-router-dom";
 <components />
 function App() {
+  
   return (
 
 
@@ -19,6 +21,8 @@ function App() {
       <Routes>
 
         <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+
 
         <Route path="/register" element={<Register />} />
 
@@ -27,6 +31,8 @@ function App() {
         <Route path="/my-pastes" element={<MyPastes />} />
 
         <Route path="/paste/:id" element={<ViewPaste />} />
+
+        
 
       </Routes>
 
