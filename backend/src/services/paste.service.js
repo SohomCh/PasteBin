@@ -1,229 +1,248 @@
-const { Paste } = require("../models/paste.model")
-const { nanoid } = require("nanoid")
-//for redis
-const redis =require("../services/cache.services")
+const { Paste } = require("../models/paste.model");
+const { nanoid } = require("nanoid");
+const redis = require("../services/cache.services");
 
-// Generate short unique ID
+// ========================================
+// Generate a unique 7-character Paste ID
+// ========================================
 function generatePasteId() {
-    return nanoid(7)
+    return nanoid(7);
 }
 
-// Main service
+// ========================================
+// Create a New Paste
+// ========================================
 async function createPaste(data, userId) {
-
     try {
 
-        // 1️⃣ Validation
-
+        // ================================
+        // 1. Validate Content
+        // ================================
         if (!data.content || data.content.trim() === "") {
-            throw new Error("Content is required")
+            throw new Error("Content is required");
         }
 
-        // 2️⃣ Generate ID
+        // ================================
+        // 2. Generate Unique Paste ID
+        // ================================
+        const pasteId = generatePasteId();
 
-        const pasteId = generatePasteId()
-
-        // 3️⃣ Extract Public / Private Setting
-
+        // ================================
+        // 3. Public / Private Paste
+        // Default -> Public
+        // ================================
         const isPublic =
             data.isPublic !== undefined
                 ? data.isPublic
-                : true
+                : true;
 
-        // 4️⃣ Expiry handling
+        // ================================
+        // 4. Handle Expiry Date
+        // Frontend sends:
+        // "2026-07-29"
+        // ================================
+        let expiresAt;
 
-        let expiresAt
+        if (data.expiry) {
 
-        if (data.expiry !== undefined) {
+            expiresAt = new Date(data.expiry);
 
-            const expiryMinutes = Number(data.expiry)
-
-            if (isNaN(expiryMinutes) || expiryMinutes <= 0) {
-                throw new Error("Invalid expiry value")
+            // Invalid Date?
+            if (isNaN(expiresAt.getTime())) {
+                throw new Error("Invalid expiry value");
             }
 
-            expiresAt = new Date(
-                Date.now() + expiryMinutes * 60 * 1000
-            )
+            // Expire at end of selected day
+            expiresAt.setHours(23, 59, 59, 999);
         }
 
-        // 5️⃣ Create object
-
+        // ================================
+        // 5. Create Paste Document
+        // ================================
         const paste = new Paste({
             pasteId,
             content: data.content,
             userId,
+            isPublic,
             expiresAt,
-            isPublic
-        })
+        });
 
-        // 6️⃣ Save
+        // ================================
+        // 6. Save into MongoDB
+        // ================================
+        await paste.save();
 
-        await paste.save()
+        // ================================
+        // 7. Return Created Paste
+        // ================================
+        return paste;
 
-        // 7️⃣ Return Paste
+    } catch (error) {
 
-        return paste
-
-    }
-    catch (error) {
-
-        console.error(
-            "Service error:",
-            error.message
-        )
-
-        throw error
+        console.error("Create Paste Service:", error.message);
+        throw error;
     }
 }
+
+// ========================================
+// Get Paste By Paste ID
+// ========================================
 async function getPasteById(pasteId, userId) {
 
-    const cacheKey = `paste:${pasteId}`
+    const cacheKey = `paste:${pasteId}`;
 
-    // 1️⃣ Check Redis
-
-    const cacheData = await redis.get(cacheKey)
+    // ================================
+    // 1. Check Redis Cache
+    // ================================
+    const cacheData = await redis.get(cacheKey);
 
     if (cacheData) {
 
-        const paste = JSON.parse(cacheData)
+        const paste = JSON.parse(cacheData);
 
-        // Private Paste Check
-
+        // ================================
+        // Private Paste Authorization
+        // ================================
         if (!paste.isPublic) {
 
             if (!userId) {
-                throw new Error("Forbidden")
+                throw new Error("Forbidden");
             }
 
             if (paste.userId.toString() !== userId) {
-                throw new Error("Forbidden")
+                throw new Error("Forbidden");
             }
         }
 
-        // Async DB update (non-blocking)
-
+        // ================================
+        // Increment Views Asynchronously
+        // ================================
         Paste.updateOne(
             { pasteId },
             { $inc: { views: 1 } }
         ).exec().catch(err => {
-            console.error("Async view update failed:", err.message)
-        })
+            console.error("View Update Failed:", err.message);
+        });
 
-        return paste
+        return paste;
     }
 
-    // 2️⃣ Fetch from DB
-
-    const paste = await Paste.findOne({ pasteId })
-
-    // Paste Exists?
+    // ================================
+    // 2. Fetch from MongoDB
+    // ================================
+    const paste = await Paste.findOne({ pasteId });
 
     if (!paste) {
-        throw new Error("Paste not found")
+        throw new Error("Paste not found");
     }
 
-    // 3️⃣ Private Paste Check
-
+    // ================================
+    // 3. Private Paste Authorization
+    // ================================
     if (!paste.isPublic) {
 
         if (!userId) {
-            throw new Error("Forbidden")
+            throw new Error("Forbidden");
         }
 
         if (paste.userId.toString() !== userId) {
-            throw new Error("Forbidden")
+            throw new Error("Forbidden");
         }
     }
 
-    // 4️⃣ Expiry Check
-
-    if (paste.expiresAt && paste.expiresAt < Date.now()) {
-        throw new Error("Paste expired")
+    // ================================
+    // 4. Expiry Check
+    // ================================
+    if (paste.expiresAt && paste.expiresAt < new Date()) {
+        throw new Error("Paste expired");
     }
 
-    // 5️⃣ Increment Views
+    // ================================
+    // 5. Increment Views
+    // ================================
+    paste.views++;
 
-    paste.views += 1
+    await paste.save();
 
-    await paste.save()
-
-    // 6️⃣ Store In Redis
-
+    // ================================
+    // 6. Cache in Redis (60 seconds)
+    // ================================
     await redis.set(
         cacheKey,
         JSON.stringify(paste),
         "EX",
         60
-    )
+    );
 
-    // 7️⃣ Return Paste
-
-    return paste
+    // ================================
+    // 7. Return Paste
+    // ================================
+    return paste;
 }
 
-async function getMyPastes(userId){
-    const pastes=await Paste.find({userId})
-    return pastes
+// ========================================
+// Get All Pastes of Logged-in User
+// ========================================
+async function getMyPastes(userId) {
+
+    return await Paste.find({ userId });
 }
 
+// ========================================
+// Delete a Paste
+// ========================================
+async function deletePaste(pasteId, userId) {
 
-async function deletePaste(pasteId,userId){
-    const paste=await Paste.findOne({pasteId})
+    const paste = await Paste.findOne({ pasteId });
 
-    if(!paste){
-        throw new Error("Paste not found")
+    if (!paste) {
+        throw new Error("Paste not found");
     }
 
-    //OwnerShip Check
-
-    if(paste.userId.toString()!==userId){
-        throw new Error("Unauthorized")
+    // Owner Check
+    if (paste.userId.toString() !== userId) {
+        throw new Error("Unauthorized");
     }
 
-    //delete cache
+    // Remove Redis Cache
+    await redis.del(`paste:${pasteId}`);
 
-    await redis.del(`paste:${pasteId}`)
+    // Delete from MongoDB
+    await Paste.deleteOne({ pasteId });
 
-    //delete db
-
-    await Paste.deleteOne({pasteId})
-
-    return{
-        message:"Paste deleted successfully"
-    }
+    return {
+        message: "Paste deleted successfully",
+    };
 }
 
+// ========================================
+// Edit Existing Paste
+// ========================================
+async function editPaste(pasteId, userId, updateData) {
 
-async function editPaste(pasteId,userId,updateData){
-    const paste= await Paste.findOne({pasteId})
+    const paste = await Paste.findOne({ pasteId });
 
-    if(!paste){
-        throw new Error("Paste not found")
+    if (!paste) {
+        throw new Error("Paste not found");
     }
 
-    //OwnerShip check
-
-    if(paste.userId.toString()!==userId){
-        throw new Error("Unauthorized")
+    // Owner Check
+    if (paste.userId.toString() !== userId) {
+        throw new Error("Unauthorized");
     }
 
-    //Checking fields to be edited
-    if(updateData.content){
-        paste.content=updateData.content;
+    // Update Content
+    if (updateData.content) {
+        paste.content = updateData.content;
     }
 
-    await paste.save()
+    // Save Changes
+    await paste.save();
 
-    //Invalidating cache
-    await redis.del(`paste:${pasteId}`)
+    // Invalidate Redis Cache
+    await redis.del(`paste:${pasteId}`);
 
     return paste;
-
-
-
-
-
 }
 
 module.exports = {
@@ -232,4 +251,4 @@ module.exports = {
     getMyPastes,
     deletePaste,
     editPaste,
-}
+};

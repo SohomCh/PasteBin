@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import CreatePaste from "./pages/CreatePaste";
 import MyPastes from "./pages/MyPastes";
 import ViewPaste from "./pages/ViewPaste";
+import EditPaste from "./pages/EditPaste";
 import Navbar from"./components/Navbar";
 import { useNavigate } from "react-router-dom";
 import ProtectedRoutes from "./components/ProtectedRoutes";
@@ -33,8 +34,8 @@ function App() {
         <Route path="/my-pastes" element={<ProtectedRoutes><MyPastes /></ProtectedRoutes>} />
 
         <Route path="/paste/:id" element={<ViewPaste />} />
-
         
+        <Route path="/edit/:id" element={<EditPaste />} />
 
       </Routes>
 
