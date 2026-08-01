@@ -92,113 +92,116 @@ function MyPastes() {
   }
 
   // dynamic layout: fewer pastes -> larger cards; many pastes -> compact cards
-  const few = filtered.length <= 3;
   const twoOrLess = filtered.length <= 2;
-  const gridCols = twoOrLess ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
-  const cardBase = "rounded-xl border border-[var(--border)] bg-[var(--surface)] transform hover:-translate-y-1 hover:shadow-lg transition-all";
-  const cardPadding = "p-6"; // consistent p-6 per design system
-  const titleSize = few ? "text-lg" : "text-sm";
-  const actionBtnBase = "inline-flex items-center gap-2 px-4 h-9 rounded-lg text-sm font-medium transition-all border";
+  const gridCols = twoOrLess ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
 
   return (
-    <div className="min-h-screen text-white py-10 px-4">
-      <main className="max-w-6xl mx-auto">
-        <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="py-10">
+      <main className="mx-auto max-w-6xl fade-up">
+        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-semibold">My Pastes</h1>
-            <p className="text-sm muted mt-1">Manage your snippets and sharing settings</p>
+            <h1 className="text-2xl font-semibold tracking-tight">My pastes</h1>
+            <p className="mt-1 text-sm muted">Manage your snippets and sharing settings.</p>
           </div>
 
-          <div className="flex items-center gap-4 w-full">
-            <div className="relative flex-1">
+          <div className="flex w-full items-center gap-3 sm:w-auto">
+            <div className="relative flex-1 sm:w-72">
+              <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--faint)]">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.6" />
+                  <path d="M20 20l-3.8-3.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              </span>
               <input
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by id or content..."
-                className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl py-2 pl-10 pr-4 text-sm placeholder-placeholder focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                className="input pl-10"
                 aria-label="Search pastes"
               />
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)]">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="1.5" />
-                </svg>
-              </div>
             </div>
-
-            <div>
-              <span className="inline-flex items-center gap-2 bg-[var(--surface)] border border-[var(--border)] text-sm rounded-full px-3 py-1 muted">{pastes.length} pastes</span>
-            </div>
+            <span className="badge badge-muted whitespace-nowrap">{pastes.length} total</span>
           </div>
         </header>
 
         <section>
           {filtered.length === 0 ? (
-            <div className="card p-8 text-center muted">
-              <div className="text-2xl mb-2">No pastes found</div>
-              <div className="mb-4">Try creating your first paste or adjust your search.</div>
-              <div>
-                <button onClick={() => navigate("/create")} className="btn-primary px-4 py-2">
-                  Create Paste
-                </button>
+            <div className="card flex flex-col items-center justify-center px-6 py-16 text-center">
+              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--surface-3)] border border-[var(--border-strong)]">
+                <svg className="h-6 w-6 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path d="M8 4h6l4 4v12a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                  <path d="M14 4v4h4" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                </svg>
               </div>
+              <div className="text-lg font-medium">No pastes found</div>
+              <p className="mb-6 mt-1 max-w-sm text-sm muted text-pretty">Try creating your first paste or adjust your search query.</p>
+              <button onClick={() => navigate("/create")} className="btn btn-primary px-5 py-2.5">
+                Create paste
+              </button>
             </div>
           ) : (
-            <div className={`mt-4 grid ${gridCols} gap-6`}>
+            <div className={`grid ${gridCols} gap-5`}>
               {filtered.map((paste) => (
-                <article key={paste._id} className={`${cardBase} ${cardPadding}`}>
+                <article key={paste._id} className="card card-hover sheen flex flex-col p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className={`${titleSize} font-semibold text-white truncate`}>{paste.pasteId}</h3>
-                      <div className="mt-1 text-xs muted">{paste.createdAt ? new Date(paste.createdAt).toLocaleDateString() + ' · ' + new Date(paste.createdAt).toLocaleTimeString() : ''}</div>
+                      <h3 className="truncate font-mono text-sm font-semibold text-[var(--text)]">{paste.pasteId}</h3>
+                      <div className="mt-1 text-xs faint">{paste.createdAt ? new Date(paste.createdAt).toLocaleDateString() + ' · ' + new Date(paste.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</div>
                     </div>
-
-                    <div className="transform transition-all hover:scale-105">
-                      <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${paste.isPublic ? 'bg-emerald-900 text-emerald-300' : 'bg-[#0f0f10] text-[var(--muted)]'}`}>
-                        {paste.isPublic ? (
-                          <span aria-hidden className="text-emerald-300">🌍</span>
-                        ) : (
-                          <span aria-hidden className="text-[var(--muted)]">🔒</span>
-                        )}
-                        <span>{paste.isPublic ? 'Public' : 'Private'}</span>
-                      </span>
-                    </div>
+                    <span className={`badge ${paste.isPublic ? 'badge-success' : 'badge-muted'}`}>
+                      {paste.isPublic ? (
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" aria-hidden>
+                          <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.5" />
+                          <path d="M3.5 12h17M12 3.5c2.5 2.5 2.5 14.5 0 17M12 3.5c-2.5 2.5-2.5 14.5 0 17" stroke="currentColor" strokeWidth="1.3" />
+                        </svg>
+                      ) : (
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" aria-hidden>
+                          <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                          <path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      )}
+                      {paste.isPublic ? 'Public' : 'Private'}
+                    </span>
                   </div>
 
-                  <div className="mt-3">
-                    <pre className="bg-[var(--bg)] text-sm font-mono text-[var(--text)] p-3 rounded-md overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical'}}>{paste.content && (paste.content.length > 120 ? `${paste.content.slice(0,120)}...` : paste.content)}</pre>
-                  </div>
+                  <pre className="code mt-4 overflow-hidden p-3.5" style={{display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical'}}>{paste.content && (paste.content.length > 160 ? `${paste.content.slice(0,160)}...` : paste.content)}</pre>
 
-                  <div className="mt-4 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-3">
-                      <button onClick={() => navigate(`/paste/${paste.pasteId}`)} className={`${actionBtnBase} border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/6`}>
-                        <span className="text-lg">👁</span>
-                        <span>View</span>
+                  <div className="mt-4 flex items-center justify-between gap-2 border-t border-[var(--border)] pt-4">
+                    <div className="flex items-center gap-1.5">
+                      <button onClick={() => navigate(`/paste/${paste.pasteId}`)} title="View" className="btn btn-ghost px-2.5 py-2">
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
+                          <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                          <circle cx="12" cy="12" r="2.75" stroke="currentColor" strokeWidth="1.6" />
+                        </svg>
+                        <span className="hidden sm:inline">View</span>
                       </button>
-
-                      <button onClick={() => navigate(`/edit/${paste.pasteId}`)} className={`${actionBtnBase} text-[var(--muted)] hover:bg-white/5`}>
-                        <span className="text-lg">✏</span>
-                        <span>Edit</span>
+                      <button onClick={() => navigate(`/edit/${paste.pasteId}`)} title="Edit" className="btn btn-ghost px-2.5 py-2">
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
+                          <path d="M4 20h4l10-10-4-4L4 16v4Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                          <path d="M13.5 6.5l4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                        </svg>
+                        <span className="hidden sm:inline">Edit</span>
                       </button>
-
-                      <button onClick={() => handleDelete(paste.pasteId)} className={`${actionBtnBase} border-red-600 text-red-600 hover:bg-red-600/10`}>
-                        <span className="text-lg">🗑</span>
-                        <span>Delete</span>
-                      </button>
-                    </div>
-
-                    <div>
-                      <button
-                        onClick={() => toggleVisiblity(paste.pasteId)}
-                        title={paste.isPublic ? 'Make private' : 'Make public'}
-                        aria-pressed={paste.isPublic}
-                        className={`${actionBtnBase} rounded-full px-3 h-9 min-w-max ${paste.isPublic ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-transparent text-[var(--muted)] border-[var(--border)] hover:bg-white/5'}`}
-                      >
-                        <span className="text-sm" aria-hidden>{paste.isPublic ? '🌍' : '🔒'}</span>
-                        <span className="text-sm">{paste.isPublic ? 'Public' : 'Private'}</span>
+                      <button onClick={() => handleDelete(paste.pasteId)} title="Delete" className="btn btn-ghost px-2.5 py-2 text-[var(--danger)] hover:bg-[var(--danger-soft)]">
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
+                          <path d="M5 7h14M10 7V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
                       </button>
                     </div>
+
+                    <button
+                      onClick={() => toggleVisiblity(paste.pasteId)}
+                      title={paste.isPublic ? 'Make private' : 'Make public'}
+                      aria-pressed={paste.isPublic}
+                      className={`btn px-3 py-2 ${paste.isPublic ? 'btn-secondary' : 'btn-secondary'}`}
+                    >
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
+                        <path d="M4 12h10M4 12l3-3M4 12l3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M20 6v12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                      </svg>
+                      {paste.isPublic ? 'Make private' : 'Make public'}
+                    </button>
                   </div>
                 </article>
               ))}

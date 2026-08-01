@@ -1,59 +1,185 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@source "./";
+@source "../index.html";
 
-/* Design tokens (global) */
+/* ============================================================
+   PasteBin — Premium GitHub / Linear inspired dark theme
+   ============================================================ */
 :root {
-  --bg: #09090B; /* Background */
-  --surface: #18181B; /* Card / Surface */
-  --border: #27272A; /* Border */
-  --primary: #4F46E5; /* Primary */
-  --primary-hover: #4338CA; /* Primary hover */
-  --text: #FAFAFA; /* Main text */
-  --muted: #A1A1AA; /* Secondary text */
-  --placeholder: #71717A;
-  --radius: 14px; /* rounded-xl base */
-  --radius-lg: 18px; /* rounded-2xl */
-  --space: 8px; /* 8px spacing system */
-  --transition: 180ms;
+  /* Surfaces */
+  --bg: #08090a;          /* app background */
+  --bg-subtle: #0c0d0f;   /* code blocks / recessed */
+  --surface: #101114;     /* cards */
+  --surface-2: #16171a;   /* raised / hover */
+  --surface-3: #1b1c20;   /* inputs, chips */
+
+  /* Borders */
+  --border: #1e1f24;
+  --border-strong: #2a2b31;
+
+  /* Brand */
+  --primary: #5b6cff;        /* indigo-blue accent */
+  --primary-hover: #4a5af0;
+  --primary-soft: rgba(91, 108, 255, 0.12);
+  --primary-ring: rgba(91, 108, 255, 0.35);
+
+  /* Text */
+  --text: #f7f8f8;
+  --muted: #8a8f98;
+  --faint: #6a6e78;
+  --placeholder: #55585f;
+
+  /* Status */
+  --success: #3fb950;
+  --success-soft: rgba(63, 185, 80, 0.12);
+  --danger: #f85149;
+  --danger-soft: rgba(248, 81, 73, 0.12);
+
+  /* Shape & motion */
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --transition: 160ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Reset & layout */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body, #root { height: 100%; }
-body {
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+@layer base {
+  html { background: var(--bg); }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(1000px 600px at 50% -20%, rgba(91, 108, 255, 0.06), transparent 70%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.011em;
+  }
+  ::selection { background: var(--primary-soft); color: var(--text); }
+  :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 }
 
-/* Utility helpers to match the design system (used in JSX) */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  transition: box-shadow var(--transition) ease, transform var(--transition) ease;
+@layer components {
+  /* Layout container */
+  .container { max-width: 1120px; margin-inline: auto; padding-inline: 24px; }
+
+  /* ---------- Surfaces ---------- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+  }
+  .card-hover:hover {
+    border-color: var(--border-strong);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    transform: translateY(-2px);
+  }
+
+  /* Faint top-highlight used on premium cards */
+  .sheen { position: relative; overflow: hidden; }
+  .sheen::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color var(--transition), border-color var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition);
+    white-space: nowrap;
+  }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 6px 18px rgba(91, 108, 255, 0.25);
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: var(--surface-3);
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+  .btn-secondary:hover:not(:disabled) { background: var(--surface-2); border-color: var(--faint); }
+
+  .btn-ghost { background: transparent; color: var(--muted); }
+  .btn-ghost:hover:not(:disabled) { background: var(--surface-2); color: var(--text); }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border-color: rgba(248, 81, 73, 0.35);
+  }
+  .btn-danger:hover:not(:disabled) { background: var(--danger-soft); border-color: var(--danger); }
+
+  /* ---------- Inputs ---------- */
+  .input, .textarea {
+    width: 100%;
+    background: var(--surface-3);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    padding: 11px 14px;
+    font-size: 14px;
+    transition: border-color var(--transition), box-shadow var(--transition), background-color var(--transition);
+  }
+  .input::placeholder, .textarea::placeholder { color: var(--placeholder); }
+  .input:focus, .textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-soft);
+    background: var(--surface-2);
+  }
+  .textarea { resize: vertical; font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; line-height: 1.6; }
+
+  /* ---------- Helpers ---------- */
+  .muted { color: var(--muted); }
+  .faint { color: var(--faint); }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+  }
+  .badge-success { background: var(--success-soft); color: var(--success); border-color: rgba(63, 185, 80, 0.3); }
+  .badge-muted { background: var(--surface-3); color: var(--muted); }
+
+  .code {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #c9d1d9;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
 }
-.card-sm { border-radius: var(--radius); }
-.btn-primary {
-  background: var(--primary);
-  color: var(--text);
-  border-radius: var(--radius);
-  transition: transform var(--transition) ease, background-color var(--transition) ease;
-}
-.btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
-.muted { color: var(--muted); }
-.placeholder { color: var(--placeholder); }
 
-/* focus outlines for accessibility */
-:focus { outline: none; }
-button:focus, input:focus, textarea:focus { box-shadow: 0 0 0 4px rgba(79,70,229,0.12); }
+/* ---------- Animations (unlayered utilities) ---------- */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.7s linear infinite; }
 
-/* small helpers */
-.container { max-width: 1100px; margin-left: auto; margin-right: auto; padding-left: 24px; padding-right: 24px; }
-
-/* Smooth transitions for Tailwind utilities fallback */
-.smooth { transition: all var(--transition) ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.fade-up { animation: fadeUp 0.35s ease both; }
