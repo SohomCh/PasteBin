@@ -245,10 +245,33 @@ async function editPaste(pasteId, userId, updateData) {
     return paste;
 }
 
+
+async function toggleVisiblity(pasteId,userId){
+    const paste=await Paste.findOne({pasteId});
+    if(!paste){
+        throw new Error("Paste not found");
+    }
+    if(paste.userId.toString()!=userId){
+        throw new Error("Unauthorized");
+    }
+
+    //Toggle
+
+    paste.isPublic=!paste.isPublic;
+
+    await paste.save()
+
+    //Delete cache
+    await redis.del(`paste:${pasteId}`);
+
+    return paste
+}
+
 module.exports = {
     createPaste,
     getPasteById,
     getMyPastes,
     deletePaste,
     editPaste,
+    toggleVisiblity,
 };

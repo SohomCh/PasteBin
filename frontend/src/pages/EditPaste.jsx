@@ -65,26 +65,32 @@ function EditPaste() {
     }, []);
 
     if (loading) {
-        return <h2>Loading...</h2>;
+        return <div className="min-h-screen text-white py-10 px-4"><main className="max-w-3xl mx-auto"> <div className="muted">Loading...</div></main></div>;
     }
 
     return (
-        <div>
-            <h1>Edit Paste</h1>
+        <div className="min-h-screen text-white py-10 px-4">
+            <main className="max-w-3xl mx-auto">
+                <header className="mb-6">
+                    <h1 className="text-2xl sm:text-3xl font-semibold">Edit Paste</h1>
+                    <p className="text-sm muted mt-1">Modify your paste content below.</p>
+                </header>
 
-            <textarea
-                rows="10"
-                cols="60"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-            />
+                <section className="card p-6">
+                    <label className="block text-sm muted mb-2">Content</label>
+                    <textarea
+                        rows="10"
+                        className="w-full min-h-[160px] resize-vertical bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] rounded-xl p-4 text-sm font-mono placeholder-placeholder focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition smooth"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                    />
 
-            <br />
-            <br />
-
-            <button onClick={handleUpdate}>
-                Save Changes
-            </button>
+                    <div className="mt-4 flex items-center justify-end gap-3">
+                        <button onClick={()=>navigate(-1)} className="px-3 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-md text-sm text-[var(--text)]">Cancel</button>
+                        <button onClick={handleUpdate} className="px-4 py-2 btn-primary text-sm font-medium">Save Changes</button>
+                    </div>
+                </section>
+            </main>
         </div>
     );
 }

@@ -6,42 +6,28 @@ import CreatePaste from "./pages/CreatePaste";
 import MyPastes from "./pages/MyPastes";
 import ViewPaste from "./pages/ViewPaste";
 import EditPaste from "./pages/EditPaste";
-import Navbar from"./components/Navbar";
-import { useNavigate } from "react-router-dom";
+import Navbar from "./components/Navbar";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 
-<components />
 function App() {
-  
   return (
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
+      <BrowserRouter>
+        <Navbar />
 
-
-    <>
-    <h1>Hello</h1>
-    <BrowserRouter>
-    <Navbar/>
-
-      <Routes>
-
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-
-
-        <Route path="/register" element={<Register />} />
-
-        <Route path="/create" element={<ProtectedRoutes><CreatePaste /></ProtectedRoutes>} />
-
-        <Route path="/my-pastes" element={<ProtectedRoutes><MyPastes /></ProtectedRoutes>} />
-
-        <Route path="/paste/:id" element={<ViewPaste />} />
-        
-        <Route path="/edit/:id" element={<EditPaste />} />
-
-      </Routes>
-
-    </BrowserRouter>
-
-    </>
+        <main className="container py-10">
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/create" element={<ProtectedRoutes><CreatePaste /></ProtectedRoutes>} />
+            <Route path="/my-pastes" element={<ProtectedRoutes><MyPastes /></ProtectedRoutes>} />
+            <Route path="/paste/:id" element={<ViewPaste />} />
+            <Route path="/edit/:id" element={<EditPaste />} />
+          </Routes>
+        </main>
+      </BrowserRouter>
+    </div>
   );
 }
 

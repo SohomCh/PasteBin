@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens (global) */
+:root {
+  --bg: #09090B; /* Background */
+  --surface: #18181B; /* Card / Surface */
+  --border: #27272A; /* Border */
+  --primary: #4F46E5; /* Primary */
+  --primary-hover: #4338CA; /* Primary hover */
+  --text: #FAFAFA; /* Main text */
+  --muted: #A1A1AA; /* Secondary text */
+  --placeholder: #71717A;
+  --radius: 14px; /* rounded-xl base */
+  --radius-lg: 18px; /* rounded-2xl */
+  --space: 8px; /* 8px spacing system */
+  --transition: 180ms;
+}
+
+/* Reset & layout */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; }
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* Utility helpers to match the design system (used in JSX) */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: box-shadow var(--transition) ease, transform var(--transition) ease;
+}
+.card-sm { border-radius: var(--radius); }
+.btn-primary {
+  background: var(--primary);
+  color: var(--text);
+  border-radius: var(--radius);
+  transition: transform var(--transition) ease, background-color var(--transition) ease;
+}
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
+.muted { color: var(--muted); }
+.placeholder { color: var(--placeholder); }
+
+/* focus outlines for accessibility */
+:focus { outline: none; }
+button:focus, input:focus, textarea:focus { box-shadow: 0 0 0 4px rgba(79,70,229,0.12); }
+
+/* small helpers */
+.container { max-width: 1100px; margin-left: auto; margin-right: auto; padding-left: 24px; padding-right: 24px; }
+
+/* Smooth transitions for Tailwind utilities fallback */
+.smooth { transition: all var(--transition) ease; }

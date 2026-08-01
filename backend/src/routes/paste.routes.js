@@ -2,7 +2,7 @@ const express = require('express')
 
 const router = express.Router()
 
-const { createPasteController,getPasteByIdController,getContentByIdController,getMyPastesController,deletePasteController,editPasteController} = require('../controllers/paste.controller')
+const { createPasteController,getPasteByIdController,getContentByIdController,getMyPastesController,deletePasteController,editPasteController,toggleVisibilityController} = require('../controllers/paste.controller')
 const{authMiddleware}=require("../middlewares/auth.middleware")
 const{optionalAuthMiddleware}=require("../middlewares/optionalAuth.middleware")
 
@@ -26,6 +26,11 @@ router.patch(
     editPasteController
 )
 
+router.patch(
+    "/paste/:id/visibility",
+    authMiddleware,
+    toggleVisibilityController
+)
 //DELETE ROUTES
 router.delete("/paste/:id",
     authMiddleware,

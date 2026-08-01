@@ -43,54 +43,66 @@ async function fetchPaste(){
 
 
     return (
-    <div>
+    <div className="min-h-screen text-white py-10 px-4">
+        <main className="max-w-3xl mx-auto">
+            <header className="mb-6">
+                <h1 className="text-2xl sm:text-3xl font-semibold">View Paste</h1>
+                <p className="text-sm muted mt-1">Detailed view of your paste</p>
+            </header>
 
-        <h1>View Paste</h1>
+            {!paste ? (
+                <div className="muted">Loading...</div>
+            ) : (
 
-        {!paste ? (
-            <h2>Loading...</h2>
-        ) : (
+                <div className="space-y-6">
+                    <section className="card p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex-1">
+                            <div className="text-sm muted">Paste ID</div>
+                            <div className="text-lg font-medium text-white truncate">{paste.pasteId}</div>
+                        </div>
 
-            <div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm muted w-full sm:w-auto">
+                            <div>
+                                <div className="text-xs">Created</div>
+                                <div className="text-white font-medium">{paste.createdAt ? new Date(paste.createdAt).toLocaleString() : ''}</div>
+                            </div>
 
-                <p>
-                    <strong>Paste ID :</strong> {paste.pasteId}
-                </p>
+                            <div>
+                                <div className="text-xs">Expiry</div>
+                                <div className="text-white font-medium">{paste.expiresAt ? new Date(paste.expiresAt).toLocaleDateString() : 'Never'}</div>
+                            </div>
 
-                <p>
-                    <strong>Content :</strong>
-                </p>
+                            <div>
+                                <div className="text-xs">Views</div>
+                                <div className="text-white font-medium">{paste.views}</div>
+                            </div>
 
-                <textarea
-                    rows="10"
-                    cols="60"
-                    value={paste.content}
-                    readOnly
-                />
+                            <div>
+                                <div className="text-xs">Visibility</div>
+                                <div className="text-white font-medium">{paste.isPublic ? 'Public' : 'Private'}</div>
+                            </div>
+                        </div>
+                    </section>
 
-                <br />
-                <br />
+                    <section className="card p-6">
+                        <div className="flex items-center justify-between">
+                            <div className="text-sm muted">Content</div>
+                            <div className="flex items-center gap-2">
+                                <button onClick={() => { navigator.clipboard?.writeText(paste.content) }} className="px-3 py-1 bg-[var(--surface)] border border-[var(--border)] rounded-md text-sm text-[var(--text)]">Copy</button>
+                                <button onClick={()=>navigate(`/edit/${paste.pasteId}`)} className="px-3 py-1 btn-primary text-sm">Edit</button>
+                                <button onClick={()=>{ if(confirm('Delete this paste?')){ /* UI-only placeholder */ alert('Delete requested (UI only)'); } }} className="px-3 py-1 bg-red-600 hover:bg-red-500 rounded-md text-sm text-white">Delete</button>
+                                <button className="px-3 py-1 bg-[var(--surface)] border border-[var(--border)] rounded-md text-sm text-[var(--text)]">AI Explain</button>
+                            </div>
+                        </div>
 
-                <p>
-                    <strong>Views :</strong> {paste.views}
-                </p>
+                        <div className="mt-4">
+                            <pre className="bg-[#0b0b0b] text-sm font-mono text-[var(--text)] p-6 rounded-md overflow-auto max-h-[60vh]">{paste.content}</pre>
+                        </div>
+                    </section>
+                </div>
+            )}
 
-                <p>
-                    <strong>Public :</strong> {paste.isPublic ? "Yes" : "No"}
-                </p>
-
-                <p>
-                    <strong>Expiry :</strong>{" "}
-                    {paste.expiresAt
-                        ? new Date(paste.expiresAt).toLocaleDateString()
-                        : "Never"}
-
-                </p>
-
-            </div>
-
-        )}
-
+        </main>
     </div>
 );
 }

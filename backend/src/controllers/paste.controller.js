@@ -1,4 +1,4 @@
-const { createPaste, getPasteById,getMyPastes,deletePaste,editPaste, } = require("../services/paste.service")
+const { createPaste, getPasteById,getMyPastes,deletePaste,editPaste,toggleVisiblity } = require("../services/paste.service")
 
 // CREATE PASTE
 async function createPasteController(req, res) {
@@ -204,6 +204,32 @@ async function editPasteController(req,res){
 
 
 
+
+
+}
+
+
+//Toggle Visiblity
+
+
+async function toggleVisibilityController(req,res){
+    try{
+        const paste=await toggleVisiblity(
+                req.params.id,
+                req.user.userId
+        );
+
+        res.status(200).json({
+            success:true,
+            data:paste
+        });
+    }
+    catch(error){
+         res.status(400).json({
+            success: false,
+            error: error.message
+        });
+    }
 }
 module.exports = {
     createPasteController,
@@ -212,4 +238,5 @@ module.exports = {
     getMyPastesController,
     deletePasteController,
     editPasteController,
+    toggleVisibilityController,
 }
