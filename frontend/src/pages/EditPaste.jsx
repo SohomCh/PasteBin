@@ -23,11 +23,12 @@ function EditPaste() {
             );
 
             setContent(response.data.data.content);
-            setLoading(false);
         }
         catch (error) {
-            console.log(error);
             alert("Failed to fetch paste");
+        }
+        finally {
+            setLoading(false);
         }
     }
 
@@ -50,11 +51,10 @@ function EditPaste() {
 
         alert("Paste updated successfully!");
 
-        navigate("/mypastes");
+        navigate("/my-pastes");
 
     } catch (error) {
 
-        console.log(error);
         alert("Failed to update paste");
 
     }
@@ -65,29 +65,49 @@ function EditPaste() {
     }, []);
 
     if (loading) {
-        return <div className="min-h-screen text-white py-10 px-4"><main className="max-w-3xl mx-auto"> <div className="muted">Loading...</div></main></div>;
+        return (
+            <div className="py-10">
+                <main className="mx-auto max-w-3xl">
+                    <div className="card flex items-center gap-3 p-6 muted">
+                        <svg className="spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"></path>
+                        </svg>
+                        Loading...
+                    </div>
+                </main>
+            </div>
+        );
     }
 
     return (
-        <div className="min-h-screen text-white py-10 px-4">
-            <main className="max-w-3xl mx-auto">
+        <div className="py-10">
+            <main className="mx-auto max-w-3xl fade-up">
                 <header className="mb-6">
-                    <h1 className="text-2xl sm:text-3xl font-semibold">Edit Paste</h1>
-                    <p className="text-sm muted mt-1">Modify your paste content below.</p>
+                    <h1 className="text-2xl font-semibold tracking-tight">Edit paste</h1>
+                    <p className="mt-1 text-sm muted">Modify your paste content below.</p>
                 </header>
 
-                <section className="card p-6">
-                    <label className="block text-sm muted mb-2">Content</label>
-                    <textarea
-                        rows="10"
-                        className="w-full min-h-[160px] resize-vertical bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] rounded-xl p-4 text-sm font-mono placeholder-placeholder focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition smooth"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                    />
+                <section className="card sheen p-6 sm:p-7">
+                    <label className="mb-2 block text-sm font-medium text-[var(--text)]">Content</label>
+                    <div className="overflow-hidden rounded-[var(--radius)] border border-[var(--border-strong)] bg-[var(--bg-subtle)]">
+                        <div className="flex items-center gap-1.5 border-b border-[var(--border)] px-4 py-2.5">
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#f85149]/70" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#e3b341]/70" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#3fb950]/70" />
+                            <span className="ml-2 text-xs faint font-mono">snippet.txt</span>
+                        </div>
+                        <textarea
+                            rows="12"
+                            className="w-full min-h-[220px] resize-vertical bg-transparent px-4 py-3 text-sm font-mono leading-relaxed text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                        />
+                    </div>
 
-                    <div className="mt-4 flex items-center justify-end gap-3">
-                        <button onClick={()=>navigate(-1)} className="px-3 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-md text-sm text-[var(--text)]">Cancel</button>
-                        <button onClick={handleUpdate} className="px-4 py-2 btn-primary text-sm font-medium">Save Changes</button>
+                    <div className="mt-5 flex items-center justify-end gap-3 border-t border-[var(--border)] pt-5">
+                        <button onClick={()=>navigate(-1)} className="btn btn-secondary px-4 py-2.5">Cancel</button>
+                        <button onClick={handleUpdate} className="btn btn-primary px-5 py-2.5">Save changes</button>
                     </div>
                 </section>
             </main>

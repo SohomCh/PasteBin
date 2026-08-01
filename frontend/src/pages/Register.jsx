@@ -38,15 +38,23 @@ function Register() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 py-10">
-            <div className="w-full max-w-md mx-auto">
-                <div className="card p-8">
-                    <h1 className="text-3xl font-semibold text-white text-center">Create account</h1>
-                    <p className="text-sm muted text-center mt-2">Sign up to start creating pastes</p>
+        <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-4 py-12">
+            <div className="w-full max-w-[400px] fade-up">
+                <div className="mb-8 text-center">
+                    <div className="mx-auto mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--surface-3)] border border-[var(--border-strong)]">
+                        <svg className="h-6 w-6 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" aria-hidden>
+                            <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" strokeWidth="1.6" />
+                            <path d="M5 20a7 7 0 0 1 14 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                        </svg>
+                    </div>
+                    <h1 className="text-2xl font-semibold tracking-tight text-balance">Create your account</h1>
+                    <p className="mt-2 text-sm muted text-pretty">Sign up to start creating and sharing pastes.</p>
+                </div>
 
-                    <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+                <div className="card sheen p-7">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium muted mb-2">Name</label>
+                            <label htmlFor="name" className="mb-2 block text-sm font-medium text-[var(--text)]">Name</label>
                             <input
                                 id="name"
                                 name="name"
@@ -55,12 +63,12 @@ function Register() {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 required
-                                className="w-full bg-[var(--surface)] text-white border border-[var(--border)] rounded-xl p-3 text-sm placeholder-placeholder focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition smooth"
+                                className="input"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium muted mb-2">Email</label>
+                            <label htmlFor="email" className="mb-2 block text-sm font-medium text-[var(--text)]">Email</label>
                             <input
                                 id="email"
                                 name="email"
@@ -69,12 +77,12 @@ function Register() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                className="w-full bg-[var(--surface)] text-white border border-[var(--border)] rounded-xl p-3 text-sm placeholder-placeholder focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition smooth"
+                                className="input"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium muted mb-2">Password</label>
+                            <label htmlFor="password" className="mb-2 block text-sm font-medium text-[var(--text)]">Password</label>
                             <input
                                 id="password"
                                 name="password"
@@ -83,20 +91,25 @@ function Register() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                className="w-full bg-[var(--surface)] text-white border border-[var(--border)] rounded-xl p-3 text-sm placeholder-placeholder focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition smooth"
+                                className="input"
                             />
                         </div>
 
-                        <div className="flex items-center justify-between">
-                            <div className="text-sm muted">Already have an account? <Link to="/login" className="text-[var(--primary)] hover:text-[var(--primary-hover)]">Login</Link></div>
-                        </div>
-
-                        <div>
-                            <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 btn-primary py-3">
-                                {loading ? 'Creating...' : 'Register'}
-                            </button>
-                        </div>
+                        <button type="submit" disabled={loading} className="btn btn-primary w-full py-3">
+                            {loading ? (
+                                <svg className="spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"></path>
+                                </svg>
+                            ) : null}
+                            <span>{loading ? 'Creating...' : 'Create account'}</span>
+                        </button>
                     </form>
+
+                    <div className="mt-6 border-t border-[var(--border)] pt-5 text-center text-sm muted">
+                        Already have an account?{" "}
+                        <Link to="/login" className="font-medium text-[var(--primary)] hover:text-[var(--primary-hover)]">Sign in</Link>
+                    </div>
                 </div>
             </div>
         </div>

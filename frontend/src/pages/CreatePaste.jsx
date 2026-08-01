@@ -1,5 +1,4 @@
 
-
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
@@ -53,65 +52,80 @@ catch (error) {
 };
 
     return (
-        <div className="min-h-screen text-white antialiased font-sans py-10 px-4">
-            <main className="max-w-4xl mx-auto">
+        <div className="py-10">
+            <main className="mx-auto max-w-3xl fade-up">
                 <header className="mb-6">
-                    <h1 className="text-2xl sm:text-3xl font-semibold">Create Paste</h1>
-                    <p className="text-sm muted mt-1">Quickly create and share code or text snippets.</p>
+                    <h1 className="text-2xl font-semibold tracking-tight">Create paste</h1>
+                    <p className="mt-1 text-sm muted">Quickly create and share code or text snippets.</p>
                 </header>
 
-                <form onSubmit={handleSubmit} className="card p-6 sm:p-8">
+                <form onSubmit={handleSubmit} className="card sheen p-6 sm:p-7">
                     <div className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium muted mb-2">Content</label>
-                            <textarea
-                                rows="14"
-                                className="w-full min-h-[220px] resize-vertical bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] rounded-xl p-4 text-sm font-mono placeholder-placeholder focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition smooth"
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                placeholder="Paste your text or code here..."
-                            />
-                            <div className="flex items-center justify-between mt-2 text-xs muted">
-                                <span>{content.length} characters</span>
-                                <span className="hidden sm:inline">Tip: Use the monospace font for code snippets.</span>
+                            <div className="mb-2 flex items-center justify-between">
+                                <label className="text-sm font-medium text-[var(--text)]">Content</label>
+                                <span className="text-xs faint font-mono">{content.length} chars</span>
                             </div>
+                            <div className="overflow-hidden rounded-[var(--radius)] border border-[var(--border-strong)] bg-[var(--bg-subtle)]">
+                                <div className="flex items-center gap-1.5 border-b border-[var(--border)] px-4 py-2.5">
+                                    <span className="h-2.5 w-2.5 rounded-full bg-[#f85149]/70" />
+                                    <span className="h-2.5 w-2.5 rounded-full bg-[#e3b341]/70" />
+                                    <span className="h-2.5 w-2.5 rounded-full bg-[#3fb950]/70" />
+                                    <span className="ml-2 text-xs faint font-mono">snippet.txt</span>
+                                </div>
+                                <textarea
+                                    rows="14"
+                                    className="w-full min-h-[240px] resize-vertical bg-transparent px-4 py-3 text-sm font-mono leading-relaxed text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none"
+                                    value={content}
+                                    onChange={(e) => setContent(e.target.value)}
+                                    placeholder="Paste your text or code here..."
+                                />
+                            </div>
+                            <p className="mt-2 text-xs faint">Tip: monospace formatting is preserved for code snippets.</p>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div className="sm:col-span-1">
-                                <label className="block text-sm font-medium muted mb-2">Expiry</label>
+                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-[var(--text)]">Expiry</label>
                                 <input
                                     type='date'
                                     value={expiry}
                                     onChange={(e)=>setExpiry(e.target.value)}
-                                    className="w-full bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                                    className="input [color-scheme:dark]"
                                 />
+                                <p className="mt-2 text-xs faint">Leave empty for a paste that never expires.</p>
                             </div>
 
-                            <div className="sm:col-span-2">
-                                <label className="block text-sm font-medium muted mb-2">Visibility</label>
-                                <div className="inline-flex items-center gap-3 bg-[var(--surface)] p-2 rounded-xl">
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-[var(--text)]">Visibility</label>
+                                <div className="inline-flex w-full rounded-[var(--radius)] border border-[var(--border-strong)] bg-[var(--surface-3)] p-1">
                                     <button
                                         type="button"
                                         onClick={()=>setIsPublic(true)}
-                                        className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${isPublic ? 'btn-primary shadow' : 'bg-[#111111] text-[var(--muted)] hover:bg-[#151516]'}`}>
+                                        className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${isPublic ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted)] hover:text-[var(--text)]'}`}>
                                         Public
                                     </button>
                                     <button
                                         type="button"
                                         onClick={()=>setIsPublic(false)}
-                                        className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${!isPublic ? 'btn-primary shadow' : 'bg-[#111111] text-[var(--muted)] hover:bg-[#151516]'}`}>
+                                        className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${!isPublic ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted)] hover:text-[var(--text)]'}`}>
                                         Private
                                     </button>
                                 </div>
-                                <p className="mt-2 text-xs muted">Public pastes are visible to others; private ones are only accessible via link.</p>
+                                <p className="mt-2 text-xs faint">Public pastes are visible to others; private ones are link-only.</p>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-end gap-4">
-                            <div className="text-sm muted mr-auto">Your pastes are stored securely.</div>
-                            <button type="Submit" className="inline-flex items-center gap-2 btn-primary py-2 px-6 shadow-md">
-                                Create Paste
+                        <div className="flex items-center justify-between gap-4 border-t border-[var(--border)] pt-5">
+                            <div className="flex items-center gap-2 text-sm muted">
+                                <svg className="h-4 w-4 text-[var(--success)]" viewBox="0 0 24 24" fill="none" aria-hidden>
+                                    <path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                                    <path d="M9.5 12l1.8 1.8L15 10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                Stored securely
+                            </div>
+                            <button type="Submit" className="btn btn-primary px-6 py-2.5">
+                                Create paste
                             </button>
                         </div>
                     </div>

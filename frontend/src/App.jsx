@@ -15,7 +15,7 @@ function App() {
       <BrowserRouter>
         <Navbar />
 
-        <main className="container py-10">
+        <main className="container">
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
