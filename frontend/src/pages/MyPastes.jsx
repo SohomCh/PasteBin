@@ -24,7 +24,6 @@ function MyPastes() {
       );
       setPastes(response.data.data);
     } catch (error) {
-      console.log(error);
       alert("Failed to fetch");
     }
   }
@@ -50,7 +49,6 @@ function MyPastes() {
 
       setPastes((prevPastes) => prevPastes.filter((paste) => paste.pasteId !== id));
     } catch (error) {
-      console.log(error);
       alert("Failed to delete paste");
     }
   }
@@ -69,7 +67,7 @@ function MyPastes() {
     const token = localStorage.getItem("token");
 
     try {
-      await api.patch(
+      const response = await api.patch(
         `/paste/${id}/visibility`,
         {},
         {
@@ -79,14 +77,16 @@ function MyPastes() {
         }
       );
 
-      // update local state to reflect visibility change
+      // synchronize local state with the visibility returned by the backend
+      const updated = response.data && response.data.data;
       setPastes((prev) =>
         prev.map((p) =>
-          p.pasteId === id || p._id === id ? { ...p, isPublic: !p.isPublic } : p
+          p.pasteId === id
+            ? { ...p, isPublic: updated ? updated.isPublic : !p.isPublic }
+            : p
         )
       );
     } catch (error) {
-      console.log(error);
       alert("Failed to toggle visibility");
     }
   }
@@ -143,7 +143,7 @@ function MyPastes() {
           ) : (
             <div className={`grid ${gridCols} gap-5`}>
               {filtered.map((paste) => (
-                <article key={paste._id} className="card card-hover sheen flex flex-col p-5">
+                <article key={paste.pasteId} className="card card-hover sheen flex flex-col p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <h3 className="truncate font-mono text-sm font-semibold text-[var(--text)]">{paste.pasteId}</h3>

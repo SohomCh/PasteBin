@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 function ViewPaste() {
 
     const { id } = useParams();
+    const navigate = useNavigate();
 
     const [paste, setPaste] = useState(null);
     useEffect(()=>{
@@ -25,18 +26,31 @@ async function fetchPaste(){
             }
         );
 
-        console.log(response.data)
         setPaste( response.data.data)
-        
-
-
-        
     }
     catch(error){
-
-        console.log(error);
         alert("Failed to fetch");
 
+    }
+}
+
+async function handleDelete(){
+    const confirmDelete = window.confirm("Are you sure you want to delete this paste?");
+    if(!confirmDelete) return;
+
+    try{
+        const token=localStorage.getItem("token")
+        await api.delete(
+            `/paste/${paste.pasteId}`,{
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+            }
+        );
+        navigate("/my-pastes");
+    }
+    catch(error){
+        alert("Failed to delete paste");
     }
 }
 
@@ -105,7 +119,7 @@ async function fetchPaste(){
                                     </svg>
                                     Edit
                                 </button>
-                                <button onClick={()=>{ if(confirm('Delete this paste?')){ /* UI-only placeholder */ alert('Delete requested (UI only)'); } }} className="btn btn-danger px-3 py-2">
+                                <button onClick={handleDelete} className="btn btn-danger px-3 py-2">
                                     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
                                         <path d="M5 7h14M10 7V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>

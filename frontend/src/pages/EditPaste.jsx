@@ -23,11 +23,12 @@ function EditPaste() {
             );
 
             setContent(response.data.data.content);
-            setLoading(false);
         }
         catch (error) {
-            console.log(error);
             alert("Failed to fetch paste");
+        }
+        finally {
+            setLoading(false);
         }
     }
 
@@ -50,11 +51,10 @@ function EditPaste() {
 
         alert("Paste updated successfully!");
 
-        navigate("/mypastes");
+        navigate("/my-pastes");
 
     } catch (error) {
 
-        console.log(error);
         alert("Failed to update paste");
 
     }
