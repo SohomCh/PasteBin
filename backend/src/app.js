@@ -10,7 +10,7 @@ const app = express()
 
 const pasteRoutes = require("./routes/paste.routes")
 const authRoutes = require("./routes/auth.routes")
-
+const aiRoutes=require("./routes/ai.routes");
 
 // ---------------- MIDDLEWARE ----------------
 
@@ -18,7 +18,7 @@ const authRoutes = require("./routes/auth.routes")
 
 app.use(
     cors({
-        origin: "http://localhost:5174"
+        origin: "http://localhost:5173"
     })
 )
 
@@ -58,6 +58,9 @@ app.use("/", pasteRoutes)
 // Auth Routes
 
 app.use("/auth", authRoutes)
+
+//AI Routes
+app.use("/ai",aiRoutes)
 
 
 // ---------------- DB CONNECTION ----------------
