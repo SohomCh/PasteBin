@@ -3,6 +3,9 @@ import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import api from"../services/api"
 import { useParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm"
+import toast from "react-hot-toast";
 
 function ViewPaste() {
 
@@ -29,7 +32,7 @@ async function fetchPaste(){
         setPaste( response.data.data)
     }
     catch(error){
-        alert("Failed to fetch");
+        toast.error("Something went wrong");
 
     }
 }
@@ -47,10 +50,12 @@ async function handleDelete(){
                 }
             }
         );
+        toast.success("Paste deleted successfully.");
         navigate("/my-pastes");
+
     }
     catch(error){
-        alert("Failed to delete paste");
+        toast.error("Failed to delete paste.");
     }
 }
 
@@ -60,6 +65,54 @@ async function handleDelete(){
         { label: "Views", value: paste.views ?? 0 },
         { label: "Visibility", value: paste.isPublic ? "Public" : "Private" },
     ] : [];
+
+
+
+const[aiResponse,setAiResponse]=useState("");
+const[loadingAI,setLoadingAI]=useState(false);
+const[selectedAction,setSelectedAction]=useState("explain");
+
+
+async function handleAI(){
+    try{
+        setLoadingAI(true);
+        setAiResponse("");
+        const token=localStorage.getItem("token");
+
+        const response=await api.post(
+            "/ai/chat",
+            {
+                content:paste.content,
+                action:selectedAction
+
+
+            },
+            {
+                headers:{
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        setAiResponse(response.data.data);
+        console.log(response.data);
+        console.log(typeof response.data);
+        toast.success("AI response generated successfully.");
+    }
+    catch(error){
+        console.log(error);
+        toast.error("Failed to generate AI response.");
+
+    }finally{
+
+        setLoadingAI(false);
+    }
+
+
+}
+
+
+
+
 
     return (
     <div className="py-10">
@@ -101,41 +154,167 @@ async function handleDelete(){
                         </div>
                     </section>
 
-                    <section className="card p-6">
-                        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                            <div className="text-sm font-medium text-[var(--text)]">Content</div>
-                            <div className="flex flex-wrap items-center gap-2">
-                                <button onClick={() => { navigator.clipboard?.writeText(paste.content) }} className="btn btn-secondary px-3 py-2">
-                                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
-                                        <rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.6" />
-                                        <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                                    </svg>
-                                    Copy
-                                </button>
-                                <button onClick={()=>navigate(`/edit/${paste.pasteId}`)} className="btn btn-secondary px-3 py-2">
-                                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
-                                        <path d="M4 20h4l10-10-4-4L4 16v4Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-                                        <path d="M13.5 6.5l4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                                    </svg>
-                                    Edit
-                                </button>
-                                <button onClick={handleDelete} className="btn btn-danger px-3 py-2">
-                                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
-                                        <path d="M5 7h14M10 7V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                    Delete
-                                </button>
-                                <button className="btn btn-secondary px-3 py-2">
-                                    <svg className="h-4 w-4 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" aria-hidden>
-                                        <path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8L12 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-                                    </svg>
-                                    AI Explain
-                                </button>
-                            </div>
-                        </div>
+                   <section className="card p-6">
 
-                        <pre className="code max-h-[60vh] overflow-auto p-5">{paste.content}</pre>
-                    </section>
+    {/* Header */}
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+
+        <h2 className="text-lg font-semibold text-[var(--text)]">
+            Paste Content
+        </h2>
+
+        <div className="flex flex-wrap items-center gap-2">
+
+            <button
+                onClick={() => navigator.clipboard.writeText(paste.content)}
+                className="btn btn-secondary"
+                
+            >
+                
+                📋 Copy
+            </button>
+
+            <button
+                onClick={() => navigate(`/edit/${paste.pasteId}`)}
+                className="btn btn-secondary"
+            >
+                ✏️ Edit
+            </button>
+
+            <button
+                onClick={handleDelete}
+                className="btn btn-danger"
+            >
+                🗑 Delete
+            </button>
+
+        </div>
+
+    </div>
+
+    {/* Paste */}
+    <pre className="code max-h-[60vh] overflow-auto rounded-xl p-5">
+        {paste.content}
+    </pre>
+
+    {/* AI Panel */}
+
+    <div className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
+
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+
+            <div>
+
+                <h2 className="text-xl font-semibold">
+                    🤖 AI Assistant
+                </h2>
+
+                <p className="mt-1 text-sm muted">
+                    Analyze your code or text using Groq AI
+                </p>
+
+            </div>
+
+            <button
+                disabled={!aiResponse}
+                onClick={() => navigator.clipboard.writeText(aiResponse)}
+                className="btn btn-secondary"
+            >
+                📋 Copy Response
+            </button>
+
+        </div>
+
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+
+            <select
+                value={selectedAction}
+                onChange={(e) => setSelectedAction(e.target.value)}
+                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2"
+            >
+                <option value="explain">🧠 Explain</option>
+                <option value="summarize">📝 Summarize</option>
+                <option value="improve">✨ Improve</option>
+                <option value="debug">🐞 Debug</option>
+                <option value="optimize">⚡ Optimize</option>
+            </select>
+
+            <button
+                onClick={handleAI}
+                disabled={loadingAI}
+                className="btn btn-primary"
+            >
+                {loadingAI ? (
+                    <>
+                        <svg
+                            className="mr-2 inline h-4 w-4 animate-spin"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                opacity=".25"
+                            />
+
+                            <path
+                                fill="currentColor"
+                                d="M12 2a10 10 0 0 1 10 10h-3a7 7 0 0 0-7-7V2z"
+                            />
+                        </svg>
+
+                        Thinking...
+                    </>
+                ) : (
+                    <>✨ Generate Response</>
+                   
+                )}
+            </button>
+
+        </div>
+
+        {aiResponse && (
+
+            <div className="overflow-hidden rounded-2xl border border-[var(--border)]">
+
+                <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface-hover)] px-6 py-4">
+
+                    <div>
+
+                        <h3 className="font-semibold">
+                            🤖 AI Response
+                        </h3>
+
+                        <p className="text-xs muted">
+                            Generated using Groq AI
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div className="max-h-[500px] overflow-y-auto p-6">
+
+                    <div className="prose prose-invert max-w-none">
+
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {aiResponse}
+                        </ReactMarkdown>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        )}
+
+    </div>
+
+</section>
                 </div>
             )}
 

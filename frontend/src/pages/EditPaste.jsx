@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 import api from "../services/api";
 
 function EditPaste() {
@@ -25,7 +26,7 @@ function EditPaste() {
             setContent(response.data.data.content);
         }
         catch (error) {
-            alert("Failed to fetch paste");
+            toast.error("Something went wrong");
         }
         finally {
             setLoading(false);
@@ -49,13 +50,13 @@ function EditPaste() {
             }
         );
 
-        alert("Paste updated successfully!");
+        toast.success("Paste updated successfully");
 
         navigate("/my-pastes");
 
     } catch (error) {
 
-        alert("Failed to update paste");
+        toast.error("Something went wrong");
 
     }
 }

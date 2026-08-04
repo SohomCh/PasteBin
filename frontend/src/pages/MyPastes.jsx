@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import api from "../services/api";
 
 function MyPastes() {
@@ -24,7 +25,7 @@ function MyPastes() {
       );
       setPastes(response.data.data);
     } catch (error) {
-      alert("Failed to fetch");
+      toast.error("Something went wrong");
     }
   }
 
@@ -49,7 +50,7 @@ function MyPastes() {
 
       setPastes((prevPastes) => prevPastes.filter((paste) => paste.pasteId !== id));
     } catch (error) {
-      alert("Failed to delete paste");
+      toast.error("Something went wrong");
     }
   }
 
@@ -87,7 +88,7 @@ function MyPastes() {
         )
       );
     } catch (error) {
-      alert("Failed to toggle visibility");
+      toast.error("Something went wrong");
     }
   }
 

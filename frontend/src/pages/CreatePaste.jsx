@@ -1,6 +1,7 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import api from '../services/api'
 
 function CreatePaste() {
@@ -29,7 +30,7 @@ function CreatePaste() {
                 },
             }
         );
-        alert("Paste Created Successfully")
+        toast.success("Paste created successfully")
 
         console.log(response.data);
         navigate('/my-pastes');
@@ -45,7 +46,7 @@ catch (error) {
         console.log("Response Data:", error.response.data);
     }
 
-    alert("Failed to Create Paste");
+    toast.error("Something went wrong");
 }
 
   
