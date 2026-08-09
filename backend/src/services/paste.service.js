@@ -170,8 +170,7 @@ async function getPasteById(pasteId, userId) {
     await redis.set(
         cacheKey,
         JSON.stringify(paste),
-        "EX",
-        60
+        { EX: 60 }
     );
 
     // ================================

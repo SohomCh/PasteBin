@@ -28,7 +28,7 @@ function Navbar() {
                             <path d="M10 13h5M10 16.5h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                         </svg>
                     </span>
-                    <span className="text-[15px] font-semibold tracking-tight text-[var(--text)]">PasteBin</span>
+                    <span className="text-[15px] font-semibold tracking-tight text-[var(--text)]">PasteVault</span>
                 </Link>
 
                 <nav className="flex items-center gap-1">
