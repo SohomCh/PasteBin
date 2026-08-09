@@ -69,17 +69,17 @@ const { connect } = require("./models/connect")
 
 connect()
     .then(() => {
+        console.log("DB Connected");
 
-        console.log("DB Connected")
+        const PORT = process.env.PORT || 8000;
 
-        app.listen(8000, () => {
-            console.log("Server running on port 8000")
-        })
-
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
     })
     .catch(err => {
         console.error(
             "DB connection failed:",
             err.message
-        )
-    })
+        );
+    });
