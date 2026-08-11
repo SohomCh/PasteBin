@@ -69,7 +69,9 @@ app.use("/ai",aiRoutes)
 
 const { connect } = require("./models/connect")
 
-const PORT = process.env.PORT || 8000;
+
+
+const PORT = process.env.PORT || 10000;
 
 connect()
     .then(() => {
@@ -80,5 +82,8 @@ connect()
         });
     })
     .catch(err => {
-        console.error("DB connection failed:", err.message);
+        console.error(
+            "DB connection failed:",
+            err.message
+        );
     });
