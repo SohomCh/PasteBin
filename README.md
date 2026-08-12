@@ -1,74 +1,234 @@
-# PasteBin
+# PasteVault
 
-# PasteBin Clone
+A full-stack paste management platform for securely creating, managing, and sharing text snippets. PasteVault combines JWT-based authentication, Redis caching, paste expiration, rate limiting, and an AI-powered assistant for explaining, summarizing, improving, debugging, and optimizing pasted content.
 
-A full-stack PasteBin-style application that allows users to create, manage, and share text snippets securely. The project supports authentication, authorization, public/private pastes, caching, rate limiting, and automatic paste expiration.
+**Live Demo:** https://paste-vault-taupe.vercel.app/
+
+**Backend API:** https://pastebin-psmm.onrender.com
+
+---
 
 ## Features
 
 ### Authentication & Security
 
-* User Registration
-* User Login
-* JWT Authentication
-* Protected Routes
-* Ownership-Based Authorization
-* Rate Limiting
+* User registration and login
+* JWT-based authentication
+* Protected API routes
+* Ownership-based authorization
+* Password hashing with bcrypt
+* API rate limiting
+* Public and private pastes
+* Environment-based configuration for sensitive credentials
 
 ### Paste Management
 
-* Create Paste
-* View Paste
-* Edit Paste
-* Delete Paste
-* View All User Pastes
-* Public & Private Pastes
-* Raw Paste Access
-* View Counter
+* Create pastes
+* View pastes
+* Edit pastes
+* Delete pastes
+* View all user pastes
+* Public and private visibility
+* Raw paste content access
+* View counter
+* Optional paste expiration
+* Automatic expiration using MongoDB TTL indexes
 
-### Performance
+### Redis Caching
 
-* Redis Caching
-* Cache Invalidation on Updates
-* Automatic Cache Refresh
+PasteVault uses Redis to reduce repeated database reads for frequently accessed pastes.
 
-### Expiry System
+* Redis-based paste caching
+* Cache lookup before database access
+* Cache invalidation when paste data changes
+* Automatic cache expiration
 
-* Optional Paste Expiration
-* Automatic MongoDB TTL Cleanup
+### AI Assistant
+
+PasteVault includes an AI-powered assistant that can analyze the content of a paste.
+
+Available actions:
+
+* 🧠 Explain
+* 📝 Summarize
+* ✨ Improve Writing
+* 🐞 Debug Code
+* ⚡ Optimize Code
+
+The frontend sends the selected action and paste content to the backend, which handles the AI request and returns the generated response.
+
+AI responses support Markdown rendering for improved readability.
 
 ---
 
 ## Tech Stack
 
+### Frontend
+
+* React
+* Vite
+* React Router
+* Axios
+* React Markdown
+* remark-gfm
+
 ### Backend
 
 * Node.js
 * Express.js
+* REST APIs
+* Middleware-based architecture
 
 ### Database
 
-* MongoDB
+* MongoDB Atlas
 * Mongoose
-
-### Authentication
-
-* JWT (JSON Web Tokens)
-* bcrypt
 
 ### Caching
 
-* Redis
+* Redis Cloud
+* Redis client for Node.js
 
-### Security
+### Authentication & Security
 
+* JWT
+* bcrypt
 * express-rate-limit
+* CORS
 
-### Development Tools
+### AI
+
+* Groq API
+
+### Deployment
+
+* Vercel — Frontend
+* Render — Backend
+* MongoDB Atlas — Database
+* Redis Cloud — Cache
+
+### Development
 
 * Git
 * GitHub
 * Thunder Client
+* npm
+
+---
+
+## Architecture
+
+PasteVault follows a layered backend architecture that separates HTTP handling from application logic and data access.
+
+```text
+                         User
+                           │
+                           ▼
+                  React / Vite Frontend
+                           │
+                           │ HTTPS
+                           ▼
+                    Render Backend
+                           │
+                    ┌──────┴──────┐
+                    │             │
+                    ▼             ▼
+                 Express       Middleware
+                    │
+             ┌──────┴───────┐
+             │              │
+             ▼              ▼
+        Controllers      Services
+             │              │
+             └──────┬───────┘
+                    │
+             ┌──────┴───────┐
+             │              │
+             ▼              ▼
+        MongoDB Atlas    Redis Cloud
+             │
+             │
+             ▼
+       Paste Data / Users
+
+                    │
+                    ▼
+               Groq API
+              AI Assistant
+```
+
+### Backend Request Flow
+
+```text
+Request
+   ↓
+Route
+   ↓
+Middleware
+   ↓
+Controller
+   ↓
+Service
+   ↓
+Redis / MongoDB / External API
+   ↓
+Response
+```
+
+This separation keeps request handling, business logic, and data access easier to maintain and extend.
+
+---
+
+## Redis Caching Flow
+
+For frequently accessed pastes, the backend first checks Redis before querying MongoDB.
+
+```text
+GET /paste/:id
+       │
+       ▼
+   Redis GET
+       │
+   ┌───┴────┐
+   │        │
+  HIT     MISS
+   │        │
+   │        ▼
+   │     MongoDB
+   │        │
+   │        ▼
+   │     Redis SET
+   │        │
+   └───┬────┘
+       ▼
+    Response
+```
+
+When a paste is modified or deleted, the corresponding cached data is invalidated to prevent stale results.
+
+---
+
+## Authentication Flow
+
+PasteVault uses JWT-based authentication for protected resources.
+
+```text
+User Login
+    ↓
+Credentials Verified
+    ↓
+JWT Generated
+    ↓
+Client Stores Token
+    ↓
+Authorization Header
+    ↓
+Authentication Middleware
+    ↓
+Protected Controller
+```
+
+Protected requests use the JWT through the `Authorization` header.
 
 ---
 
@@ -76,100 +236,244 @@ A full-stack PasteBin-style application that allows users to create, manage, and
 
 ### Authentication
 
-| Method | Endpoint         | Description         |
-| ------ | ---------------- | ------------------- |
-| POST   | `/auth/register` | Register a new user |
-| POST   | `/auth/login`    | Login user          |
-| GET    | `/auth/me`       | Get current user    |
+| Method | Endpoint         | Description                    |
+| ------ | ---------------- | ------------------------------ |
+| POST   | `/auth/register` | Register a new user            |
+| POST   | `/auth/login`    | Login user                     |
+| GET    | `/auth/me`       | Get current authenticated user |
 
 ### Pastes
 
-| Method | Endpoint     | Description           |
-| ------ | ------------ | --------------------- |
-| POST   | `/paste`     | Create paste          |
-| GET    | `/paste/:id` | Get paste by ID       |
-| GET    | `/paste/my`  | Get all user pastes   |
-| PATCH  | `/paste/:id` | Update paste          |
-| DELETE | `/paste/:id` | Delete paste          |
-| GET    | `/raw/:id`   | Get raw paste content |
+| Method | Endpoint     | Description                         |
+| ------ | ------------ | ----------------------------------- |
+| POST   | `/paste`     | Create a paste                      |
+| GET    | `/paste/:id` | Get a paste by ID                   |
+| GET    | `/paste/my`  | Get the authenticated user's pastes |
+| PATCH  | `/paste/:id` | Update a paste                      |
+| DELETE | `/paste/:id` | Delete a paste                      |
+| GET    | `/raw/:id`   | Get raw paste content               |
 
----
+### AI
 
-## Architecture
+| Method | Endpoint   | Description                                        |
+| ------ | ---------- | -------------------------------------------------- |
+| POST   | `/ai/chat` | Process paste content using the selected AI action |
 
-The project follows a layered architecture:
+Supported AI actions:
 
 ```text
-Routes
-  ↓
-Controllers
-  ↓
-Services
-  ↓
-Database / Redis
+explain
+summarize
+improve
+debug
+optimize
 ```
 
-This separation keeps business logic independent from request handling and improves maintainability.
+---
+
+## Production Architecture
+
+PasteVault is deployed as separate frontend and backend services.
+
+```text
+                    Internet
+                       │
+                       ▼
+              ┌─────────────────┐
+              │     Vercel      │
+              │ React Frontend  │
+              └────────┬────────┘
+                       │
+                    HTTPS
+                       │
+                       ▼
+              ┌─────────────────┐
+              │     Render      │
+              │ Node + Express  │
+              └───────┬─────────┘
+                      │
+             ┌────────┴─────────┐
+             ▼                  ▼
+      ┌──────────────┐   ┌──────────────┐
+      │ MongoDB Atlas│   │ Redis Cloud  │
+      └──────────────┘   └──────────────┘
+```
+
+Production configuration uses environment variables instead of hardcoding database credentials, JWT secrets, Redis credentials, and AI API keys.
 
 ---
 
-## Learning Outcomes
+## Project Structure
 
-This project was built to gain hands-on experience with:
-
-* REST API Design
-* Authentication & Authorization
-* JWT-Based Security
-* MongoDB & Mongoose
-* Redis Caching
-* Middleware Design
-* Rate Limiting
-* Cache Invalidation Strategies
-* Backend Project Architecture
+```text
+PasteVault/
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── ...
+│   └── package.json
+│
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── ...
+│   ├── app.js
+│   └── package.json
+│
+└── README.md
+```
 
 ---
 
-## Future Improvements
+## Environment Variables
 
-* Frontend (React)
-* Docker Support
-* Deployment
-* CI/CD Pipeline
-* Swagger/OpenAPI Documentation
-* Collaborative Pastes
-* Syntax Highlighting
-* Search Functionality
+### Backend
+
+Create a `.env` file inside the backend:
+
+```env
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+REDIS_URL=your_redis_connection_string
+GROQ_API_KEY=your_groq_api_key
+```
+
+### Frontend
+
+For local development:
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+For production, the Vercel environment is configured with:
+
+```env
+VITE_API_URL=https://pastebin-psmm.onrender.com
+```
+
+**Never commit `.env` files or secret credentials to GitHub.**
 
 ---
 
 ## Getting Started
 
-### Install Dependencies
+### Clone the Repository
 
 ```bash
+git clone <your-repository-url>
+cd PasteVault
+```
+
+### Backend
+
+```bash
+cd backend
 npm install
-```
-
-### Environment Variables
-
-Create a `.env` file:
-
-```env
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-REDIS_URL=your_redis_url
-```
-
-### Run Server
-
-```bash
 npm start
 ```
 
-Server runs on:
+The backend runs locally on:
 
 ```text
 http://localhost:8000
 ```
 
+### Frontend
 
+Open another terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend runs locally on:
+
+```text
+http://localhost:5173
+```
+
+---
+
+## Deployment
+
+### Frontend
+
+The React/Vite frontend is deployed using **Vercel**.
+
+### Backend
+
+The Node.js/Express backend is deployed using **Render**.
+
+### Database
+
+Production data is stored in **MongoDB Atlas**.
+
+### Cache
+
+Production Redis caching is provided through **Redis Cloud**.
+
+---
+
+## Learning Outcomes
+
+This project provided hands-on experience with:
+
+* REST API design
+* Layered backend architecture
+* JWT authentication
+* Authorization middleware
+* MongoDB and Mongoose
+* Redis caching
+* Cache invalidation
+* Rate limiting
+* MongoDB TTL indexes
+* React frontend development
+* API integration with Axios
+* AI API integration
+* Markdown rendering
+* Environment-based configuration
+* CORS
+* Production deployment
+* Cloud database configuration
+* Git and GitHub workflows
+
+---
+
+## Future Improvements
+
+Potential future improvements include:
+
+* Automated unit and integration testing
+* API documentation with OpenAPI/Swagger
+* CI/CD using GitHub Actions
+* Dockerized development and deployment
+* Improved monitoring and structured logging
+* Search and filtering for pastes
+* Syntax highlighting for code pastes
+* Collaborative/shared editing
+* More advanced AI-powered code analysis
+* PostgreSQL-based relational data layer for future experimentation
+
+---
+
+## Author
+
+**Sohom Chatterjee**
+
+GitHub: [SohomCh](https://github.com/SohomCh)
+
+---
+
+## License
+
+This project is built for educational and portfolio purposes.
